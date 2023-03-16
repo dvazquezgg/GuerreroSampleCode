@@ -122,7 +122,10 @@ public class DependentCombos extends JFrame implements ItemListener {
                     cbDetail.addItem(name);
                 }
             }
+        } else if (e.getSource() == cbDetail){
+
         }
+
     }
 
 }
