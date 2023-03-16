@@ -32,40 +32,62 @@ public class writer_interface extends JFrame implements ItemListener{
     static JLabel lblDetail, lblSelected;
     static JLabel lblInstruction, lblMessage;
     JComboBox sportCombo,leagueCombo,teamCombo;
+    String sportValue;
+    String leagueValue;
+    String teamValue;
     Map<String, String[]> map = new TreeMap<String, String[]>();
-
     Map<String, String[]> map1 = new TreeMap<String, String[]>();
     // writer_interface form = new writer_interface();
 
-    String sports[]= {"","Soccer", "Basketball", "Baseball", "Football", "Tennis", "Hockey", "Racing", "Golf", "Cricket", "Rugby", "Olympics"};
-    String Soccer[]= {"","Premier League", "Spanish La Liga", "French Ligue 1", "Italian Serie A", "German Bundesliga", "National Teams", "Liga MX", "MLS", "Womens Nations"};
-    String Basketball[]= {"","NBA", "WNBA", "Euro Basket", "NCAA"};
-    String Baseball[]= {"","MLB", "NCAA"};
-    String Football[]= {"","NFL", "NCAA"};
-    String Tennis[]= {"","Mens", "Womens"};
-    String Hockey[]= {"","NHL"};
-    String Racing[]= {"","F1", "Nascar"};
-    String Golf[]= {"","Mens", "Womens"};
-    String Cricket[]= {"","Mens National Teams", "Womens National Teams"};
-    String Rugby[]= {"","Mens National Teams", "Womens National Teams"};
-    String Olympics[]= {"","Track and Field", "Swimming", "Weightlifting",};
-    String premierleagueteams[]= {"","Chelsea", "Arsenal", "Tottenham",};
+    int update_control = -1;
+    String[] sports= {" ","Soccer", "Basketball", "Baseball", "Football", "Olympics"};
+    String[] Soccer= {" ","Premier League", "La Liga", "Ligue 1", "Serie A", "Bundesliga"};
+    String[] Basketball= {" ","NBA", "WNBA", "Euro Basket", "NCAA"};
+    String[] Baseball= {" ","MLB", "NCAA"};
+    String[] Football= {" ","NFL", "NCAA"};
+    String[] Olympics= {" ","Track and Field", "Swimming", "Weightlifting",};
+    String[] premierleagueteams= {" ","Chelsea", "Arsenal", "Tottenham",};
+    String[] laligateams = {" ", "FC Barcelona", "Real Madrid", "Atletico de Madrid"};
+    String[] ligue1teams = {" ", "PSG", "Lyon", "Marseille"};
+    String[] serieateams = {" ", "AC Milan", "Juventus", "Napoli"};
+    String[] bundesligateams = {" ", "FC Bayern", "Dortmund", "RB Leipzig"};
+    String[] nbateams = {" ", "Chicago Bulls", "Miami Heat", "Detroit Pistons"};
+    String[] wnbateams = {" ", "Chicago Sky", "Las Vegas Aces", "New York Liberty"};
+    String[] eurobasketteams = {" ", "Olimpia Milano", "Real Madrid", "Maccabi Tel Aviv"};
+    String[] ncaabteams = {" ", "Duke", "Kentucky", "Gonzaga"};
+    String[] nflteams = {" ", "Chicago Bears", "Pittsburgh Steelers", "Carolina Panthers"};
+    String[] ncaafteams = {" ", "Alabama", "Clemson", "Ohio State"};
+    String[] mlbteams = {" ", "Chicago Cubs", "Texas Rangers", "Minesotta Twins"};
+    String[] collegebaseballteams = {" ", "Texas", "LSU", "Texas A&M"};
+    String[] trackandfield = {" ", "Jamaica", "USA", "Canada"};
+    String[] swimming = {" ", "USA", "China", "Great Britain"};
     Connection connection = null;
 
     public void createOptionsMap() {
 
+        map.put(" ", new String[] {" "});
         map.put("Soccer", Soccer);
         map.put("Basketball", Basketball);
         map.put("Baseball", Baseball);
         map.put("Football", Football);
-        map.put("Tennis", Tennis);
-        map.put("Hockey", Hockey);
-        map.put("Racing", Racing);
-        map.put("Golf", Golf);
-        map.put("Cricket", Cricket);
-        map.put("Rugby", Rugby);
         map.put("Olympics", Olympics);
+
+        map1.put(" ", new String[] {" "});
         map1.put("Premier League", premierleagueteams);
+        map1.put("La Liga", laligateams);
+        map1.put("Ligue 1", ligue1teams);
+        map1.put("Serie A", serieateams);
+        map1.put("Bundesliga", bundesligateams);
+        map1.put("NBA", nbateams);
+        map1.put("WNBA", wnbateams);
+        map1.put("Euro Basket", eurobasketteams);
+        map1.put("NCAAB", ncaabteams);
+        map1.put("MLB", mlbteams);
+        map1.put("College Baseball", collegebaseballteams);
+        map1.put("NFL", nflteams);
+        map1.put("NCAAF", ncaafteams);
+        map1.put("Track and Field", trackandfield);
+        map1.put("Swimming", swimming);
     }
 
     /**
@@ -243,47 +265,55 @@ public class writer_interface extends JFrame implements ItemListener{
 
     public void itemStateChanged(ItemEvent event) {
 
-        String sportValue = "None";
-        String leagueValue = "None";
-        String teamValue = "None";
-
-        // if the state combobox is changed
-        if (event.getSource() == sportCombo) {
-            leagueCombo.removeAllItems(); // Empty the second combo
-            lblSelected.setText("");
-
-            // Get the value selected in main combo
-            sportValue = sportCombo.getSelectedItem().toString();
-            lblMessage.setText(sportValue + " selected");
-
-            String optionsForLeague[] = new String[(map.get(sportValue)).length];
-
-            if (optionsForLeague == null) {
-                leagueCombo.addItem("Select Sport Above");
-            } else {
-                for(int i = 0; i < (map.get(sportValue)).length; i++) {
-                    optionsForLeague[i] = map.get(sportValue)[i];
-                    System.out.println(optionsForLeague[i]);
-                    leagueCombo.addItem(optionsForLeague[i]);
-                }
-            }
-        } else if (event.getSource() == leagueCombo){
-            if (leagueCombo.getSelectedItem() != null) {
-                leagueValue = leagueCombo.getSelectedItem().toString();
-            }
-        } else if (event.getSource() == teamCombo){
-            if (teamCombo.getSelectedItem() != null) {
-                teamValue = teamCombo.getSelectedItem().toString();
+        JComboBox comboBox = (JComboBox) event.getSource();
+        int index = getIndex(comboBox);
+        String value = (String) comboBox.getSelectedItem();
+        JComboBox nextComboBox = null;
+        if (index < 2 && index != update_control) {
+            if(index == 0 ){
+                nextComboBox = leagueCombo;
+                update_control = 1;
+                updateComboBox(nextComboBox, value);
+            } else if(index == 1){
+                nextComboBox = teamCombo;
+                update_control = 2;
+                updateComboBox(nextComboBox, value);
             }
         }
-
-        System.out.println(sportValue);
-        System.out.println(leagueValue);
-        System.out.println(teamValue);
     }
-    /**
-     * Launch the application.
-     */
+
+
+    private int getIndex(JComboBox comboBox) {
+        if(comboBox == sportCombo) {
+            return 0;
+        } else if(comboBox == leagueCombo) {
+            return 1;
+        } else if(comboBox == teamCombo) {
+            return 2;
+        }
+        return -1;
+    }
+
+    private void updateComboBox(JComboBox comboBox, String value) {
+        // Clear the combo box and add new items based on the selection in the previous combo box
+        System.out.println("Updating combo box: " + comboBox.getName() + " with value: " + value);
+        comboBox.removeAllItems();
+        if(comboBox == leagueCombo) {
+            String optionsForLeague[] = map.get( value);
+            for (String option: optionsForLeague) {
+                leagueCombo.addItem(option);
+            }
+        } else if(comboBox == teamCombo) {
+            String optionsForTeam[] = map1.get(value);
+            for (String option: optionsForTeam) {
+                teamCombo.addItem(option);
+            }
+        }
+        update_control = -1;
+        // Add new items based on the selected value in the previous combo box
+        // ...
+    }
+
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
